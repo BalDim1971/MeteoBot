@@ -31,6 +31,11 @@ async def start_command(message: types.Message):
                         "погоды")
 
 
+@dp.message_handler(Command(None))
+async def get_weather(message: types.Message):
+    pass
+
+
 async def main():
     await dp.start_polling(bot)
 
