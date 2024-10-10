@@ -32,7 +32,7 @@ def generate_result(data, city):
     snow = 'не ожидается' if data['list'][0]['snow'] is None else 'ожидается'
     weather = data['list'][0]['weather'][0]['description']
     return f'''
-<b>Прогноз погоды в городе {city}</b>
+Прогноз погоды в городе {city}
 
 Сейчас температура {temp}°C
 Ощущается как {feels_like}°
@@ -54,8 +54,10 @@ def request_weather(city):
                               'lang': 'ru',
                               'APPID': API_KEY_WEATHER,
                           }).json()
-    if result['cod'] != '200' or result['count'] == 0:
-        return 0
+    if result['cod'] != '200':
+        return f"Ошибка сервера {result['cod']} {result['message']}"
+    elif result['count'] == 0:
+        return f"Город '{city}' не найден"
     else:
         return generate_result(result, city)
 
@@ -68,7 +70,8 @@ def start(message):
 @bot.message_handler(commands=['weather'])
 def get_weather(message):
     city = message.text.split()[1]
-    bot.send_message(message.from_user.id, f'{city}')
+    result = request_weather(city)
+    bot.send_message(message.from_user.id, f'{result}')
 
 
 def main():
@@ -76,9 +79,8 @@ def main():
 
 
 if __name__ == '__main__':
-    print(request_weather('Ковров'))
-    # while True:
-    #     try:
-    #         main()
-    #     except Exception as e:
-    #         print(f'❌❌❌❌❌ Сработало исключение! {e} ❌❌❌❌❌')
+    while True:
+        try:
+            main()
+        except Exception as e:
+            print(f'❌❌❌❌❌ Сработало исключение! {e} ❌❌❌❌❌')
